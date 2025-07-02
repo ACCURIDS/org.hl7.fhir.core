@@ -110,7 +110,7 @@
         <dependency>
             <groupId>info.cqframework</groupId>
             <artifactId>cql</artifactId>
-            <version>1.4.9</version>
+            <version>1.4.9-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>info.cqframework</groupId>
