@@ -64,13 +64,13 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-            <version>${pio_apache_version}</version>
+			<version>${pio_apache_version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-            <version>${pio_apache_version}</version>
+			<version>${pio_apache_version}</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

@@ -42,12 +42,12 @@
         <module>org.hl7.fhir.utilities</module>
         <module>org.hl7.fhir.dstu2</module>
         <module>org.hl7.fhir.dstu2016may</module>
-        <!-- <module>org.hl7.fhir.dstu3</module>-->
-         <module>org.hl7.fhir.r4</module>
-         <module>org.hl7.fhir.r5</module>
-         <module>org.hl7.fhir.convertors</module>
-         <module>org.hl7.fhir.validation</module>
-         <module>org.hl7.fhir.validation.cli</module>
+        <module>org.hl7.fhir.dstu3</module>
+        <module>org.hl7.fhir.r4</module>
+        <module>org.hl7.fhir.r5</module>
+        <module>org.hl7.fhir.convertors</module>
+        <module>org.hl7.fhir.validation</module>
+        <module>org.hl7.fhir.validation.cli</module>
          <!-- The report project exists only to aggregate the test results from the other projects into a central report. -->
         <module>org.hl7.fhir.report</module>
     </modules>
@@ -59,13 +59,12 @@
         </snapshotRepository>
     </distributionManagement>
 
-
-        <repositories>
-            <repository>
-                <id>central</id>
-                <url>https://repo.maven.apache.org/maven2</url>
-            </repository>
-        </repositories>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
 
 
     <dependencies>
