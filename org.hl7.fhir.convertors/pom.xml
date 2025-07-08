@@ -64,7 +64,10 @@
             <artifactId>org.hl7.fhir.r5</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <!-- UCUM -->
         <dependency>
             <groupId>org.fhir</groupId>
@@ -72,7 +75,12 @@
             <version>1.0.2</version>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit_version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- JUnit Jupiter -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

@@ -100,6 +100,7 @@ public class ComparisonTests {
 
     if (content.has("use-test") && !content.get("use-test").getAsBoolean())
       return;
+    System.out.println("---- TESTING ----------------------------------------------------------------");
 
     if (context == null) {
       System.out.println("---- Load R5 ----------------------------------------------------------------");
