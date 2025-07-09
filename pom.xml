@@ -24,10 +24,10 @@
         <maven_surefire_version>3.0.0-M4</maven_surefire_version>
         <jacoco_version>0.8.5</jacoco_version>
         <jackson_databind_version>2.16.2</jackson_databind_version>
-        <jetty.version>12.0.16</jetty.version>
-        <logback.version>1.5.18</logback.version>
-        <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
-        <cqframework.version>1.4.9</cqframework.version>
+        <jetty_version>12.0.16</jetty_version>
+        <logback_version>1.5.18</logback_version>
+        <thymeleaf_version>3.1.2.RELEASE</thymeleaf_version>
+        <cqframework_version>1.4.9</cqframework_version>
     </properties>
 
     <artifactId>org.hl7.fhir.core</artifactId>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <version>${logback_version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -89,17 +89,17 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
+                <version>${jetty_version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10</groupId>
                 <artifactId>jetty-ee10-servlet</artifactId>
-                <version>${jetty.version}</version>
+                <version>${jetty_version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty.ee10.websocket</groupId>
                 <artifactId>jetty-ee10-websocket-jetty-server</artifactId>
-                <version>${jetty.version}</version>
+                <version>${jetty_version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -109,12 +109,12 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
+                <version>${logback_version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <version>${logback_version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
