@@ -1602,7 +1602,7 @@ public class ValidationEngine implements IValidatorResourceFetcher, IPackageInst
 
   public void genScanOutput(String folder, List<ScanOutputItem> items) throws IOException, FHIRException, EOperationOutcome {
     String f = Utilities.path(folder, "comparison.zip");
-    download("http://fhir.org/archive/comparison.zip", f);
+    download("https://fhir.org/archive/comparison.zip", f);
     unzip(f, folder);
 
     for (int i = 0; i < items.size(); i++) {
@@ -1766,14 +1766,21 @@ public class ValidationEngine implements IValidatorResourceFetcher, IPackageInst
     // iterates over entries in the zip file
     while (entry != null) {
         String filePath = destDirectory + File.separator + entry.getName();
-        if (!entry.isDirectory()) {
-            // if the entry is a file, extracts it
+        final File zipEntryFile = new File(destDirectory, entry.getName());
+        if (!zipEntryFile.toPath().normalize().startsWith(destDirectory)) {
+          throw new RuntimeException("Entry with an illegal path: " + entry.getName());
+        }
+
+      if (!entry.isDirectory()) {
+            // if the entry is a file, extract it
             extractFile(zipIn, filePath);
         } else {
             // if the entry is a directory, make the directory
-            File dir = new File(filePath);
-            dir.mkdir();
-        }
+            /*File dir = new File(filePath);
+            dir.mkdir();*/
+            zipEntryFile.mkdir();
+
+      }
         zipIn.closeEntry();
         entry = zipIn.getNextEntry();
     }

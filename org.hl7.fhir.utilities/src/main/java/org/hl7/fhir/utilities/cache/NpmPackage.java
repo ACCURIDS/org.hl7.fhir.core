@@ -70,6 +70,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * info and loader for a package 
@@ -356,8 +357,8 @@ public class NpmPackage {
 
   private static final int BUFFER_SIZE = 1024;
 
-  public static NpmPackage fromPackage(InputStream tgz) throws IOException {
-    return fromPackage(tgz, null, false);
+    public static @NotNull NpmPackage fromPackage(InputStream tgz) throws IOException {
+      return fromPackage(tgz, null, false);
   }
 
   public static NpmPackage fromPackage(InputStream tgz, String desc) throws IOException {
@@ -385,6 +386,9 @@ public class NpmPackage {
       while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
         i++;
         String n = entry.getName();
+        if (n.contains("..")) {
+          throw new RuntimeException("Entry with an illegal name: " + n);
+        }
         if (entry.isDirectory()) {
           String dir = n.substring(0, n.length()-1);
           if (dir.startsWith("package/")) {
