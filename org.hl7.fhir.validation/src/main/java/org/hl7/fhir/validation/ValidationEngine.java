@@ -1776,8 +1776,6 @@ public class ValidationEngine implements IValidatorResourceFetcher, IPackageInst
           extractFile(zipIn, filePath);
         } else {
           // if the entry is a directory, make the directory
-          /*File dir = new File(filePath);
-            dir.mkdir();*/
           zipEntryFile.mkdir();
         }
         zipIn.closeEntry();
