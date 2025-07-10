@@ -1771,16 +1771,15 @@ public class ValidationEngine implements IValidatorResourceFetcher, IPackageInst
           throw new RuntimeException("Entry with an illegal path: " + entry.getName());
         }
 
-      if (!entry.isDirectory()) {
-            // if the entry is a file, extract it
-            extractFile(zipIn, filePath);
+        if (!entry.isDirectory()) {
+          // if the entry is a file, extract it
+          extractFile(zipIn, filePath);
         } else {
-            // if the entry is a directory, make the directory
-            /*File dir = new File(filePath);
+          // if the entry is a directory, make the directory
+          /*File dir = new File(filePath);
             dir.mkdir();*/
-            zipEntryFile.mkdir();
-
-      }
+          zipEntryFile.mkdir();
+        }
         zipIn.closeEntry();
         entry = zipIn.getNextEntry();
     }
