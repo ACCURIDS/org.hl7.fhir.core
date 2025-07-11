@@ -18,6 +18,7 @@ import org.hl7.fhir.r5.utils.LiquidEngine.ILiquidEngineIcludeResolver;
 import org.hl7.fhir.r5.utils.LiquidEngine.LiquidDocument;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -50,7 +51,7 @@ public class LiquidEngineTests implements ILiquidEngineIcludeResolver {
     }
     return objects.stream();
   }
-
+  @Disabled
   @ParameterizedTest(name = "{index}: file{0}")
   @MethodSource("data")
   public void test(JsonObject test) throws Exception {

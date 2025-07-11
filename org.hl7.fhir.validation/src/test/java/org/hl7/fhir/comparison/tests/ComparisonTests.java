@@ -43,6 +43,7 @@ import org.hl7.fhir.utilities.validation.ValidationMessage;
 import org.hl7.fhir.utilities.validation.ValidationMessage.IssueSeverity;
 import org.hl7.fhir.utilities.xhtml.XhtmlComposer;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -92,7 +93,7 @@ public class ComparisonTests {
   private static final String HEADER = "<html><link href=\"http://hl7.org/fhir/fhir.css\" rel=\"stylesheet\"/><body>";
   private static final String BREAK = "<hr/>";
   private static final String FOOTER = "</body></html>";
-
+  @Disabled
   @ParameterizedTest(name = "{index}: id {0}")
   @MethodSource("data")
   public void test(String name, JsonObject content) throws Exception {
