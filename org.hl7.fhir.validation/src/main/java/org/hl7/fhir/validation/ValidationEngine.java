@@ -59,6 +59,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
@@ -767,17 +768,20 @@ public class ValidationEngine implements IValidatorResourceFetcher, IPackageInst
   private Map<String, byte[]> readZip(InputStream stream) throws IOException {
     Map<String, byte[]> res = new HashMap<String, byte[]>();
     ZipInputStream zip = new ZipInputStream(stream);
-    ZipEntry ze;
-    while ((ze = zip.getNextEntry()) != null) {
-        String name = ze.getName();
+    ZipEntry zipEntry;
+    while ((zipEntry = zip.getNextEntry()) != null) {
+      String entryName = zipEntry.getName();
+      if (entryName.contains("..") || Path.of(entryName).isAbsolute()) {
+        throw new RuntimeException("Entry with an illegal path: " + entryName);
+      }
         InputStream in = zip;
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         int n;
         byte[] buf = new byte[1024];
         while ((n = in.read(buf, 0, 1024)) > -1) {
           b.write(buf, 0, n);
-        }        
-      res.put(name, b.toByteArray());
+        }
+        res.put(entryName, b.toByteArray());
       zip.closeEntry();
     }
     zip.close();    
