@@ -16,6 +16,8 @@
     <version>5.1.0-patch1</version>
 
     <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <hapi_fhir_version>5.1.0</hapi_fhir_version>
         <validator_test_case_version>1.2.9</validator_test_case_version>
         <junit_jupiter_version>5.6.2</junit_jupiter_version>
@@ -23,7 +25,7 @@
         <junit_version>4.13.2</junit_version>
         <poi_apache_version>5.4.1</poi_apache_version>
         <maven_surefire_version>3.0.0-M4</maven_surefire_version>
-        <jacoco_version>0.8.5</jacoco_version>
+        <jacoco_version>0.8.11</jacoco_version>
         <jackson_databind_version>2.16.2</jackson_databind_version>
         <jetty_version>12.0.16</jetty_version>
         <logback_version>1.5.18</logback_version>
@@ -224,6 +226,7 @@
                     <!-- Allows running the compiler in a separate process. If false it uses the built in compiler,
                     while if true it will use an executable. -->
                     <fork>true</fork>
+                    <release>17</release>
                     <meminitial>512m</meminitial>
                     <maxmem>4000m</maxmem>
                     <debug>true</debug>
@@ -345,6 +348,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <_removeheaders>Private-Package</_removeheaders>
                         <Fragment-Host>
                             ca.uhn.hapi.fhir.hapi-fhir-base
                         </Fragment-Host>
@@ -406,6 +410,23 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.18</version>
+                <executions>
+                    <execution>
+                        <id>check-java-api</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

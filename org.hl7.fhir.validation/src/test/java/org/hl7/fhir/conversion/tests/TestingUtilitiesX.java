@@ -39,9 +39,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Path;
+
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.annotation.Nonnull;
+
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -477,7 +481,9 @@ public class TestingUtilitiesX {
 
   public static boolean findTestResource(String... paths) throws IOException { 
     if (new File("../../fhir-test-cases").exists() && isTryToLoadFromFileSystem()) {
-      String n = Utilities.path(System.getProperty("user.dir"), "..", "..", "fhir-test-cases", Utilities.path(paths));
+      String n = Utilities.path(getUserDirFhirTestCases(), Utilities.path(paths));
+
+
       return new File(n).exists();
     } else {
       String classpath = ("/org/hl7/fhir/testcases/"+ Utilities.pathURL(paths));
@@ -490,6 +496,10 @@ public class TestingUtilitiesX {
     }
   }
 
+  @Nonnull
+  private static String getUserDirFhirTestCases() {
+    return Path.of(System.getProperty("user.dir"), "..", "..", "fhir-test-cases").normalize().toString();
+  }
   // TODO: JA need to figure out how to detect that we're running in maven
   private static boolean isTryToLoadFromFileSystem() {
     return !"true".equals(System.getProperty("dont_load_from_filesystem"));
@@ -497,7 +507,7 @@ public class TestingUtilitiesX {
 
   public static String loadTestResource(String... paths) throws IOException {
     if (new File("../../fhir-test-cases").exists() && isTryToLoadFromFileSystem()) {
-      String n = Utilities.path(System.getProperty("user.dir"), "..", "..", "fhir-test-cases", Utilities.path(paths));
+      String n = Utilities.path(getUserDirFhirTestCases(), Utilities.path(paths));
       // ok, we'll resolve this locally
       return TextFile.fileToString(new File(n));
     } else {
@@ -516,7 +526,7 @@ public class TestingUtilitiesX {
 
   public static InputStream loadTestResourceStream(String... paths) throws IOException {
     if (new File("../../fhir-test-cases").exists() && isTryToLoadFromFileSystem()) {
-      String n = Utilities.path(System.getProperty("user.dir"), "..", "..", "fhir-test-cases", Utilities.path(paths));
+      String n = Utilities.path(getUserDirFhirTestCases(), Utilities.path(paths));
       return new FileInputStream(n);
     } else {
       String classpath = ("/org/hl7/fhir/testcases/"+ Utilities.pathURL(paths));
