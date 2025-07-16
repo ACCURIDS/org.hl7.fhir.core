@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 public class NpmPackageTests {
   @Disabled
-
   @Test
   public void testOldFolder() throws IOException {
     // extract the test
