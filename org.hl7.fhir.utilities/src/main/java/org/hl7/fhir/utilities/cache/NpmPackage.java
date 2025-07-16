@@ -357,7 +357,7 @@ public class NpmPackage {
 
   private static final int BUFFER_SIZE = 1024;
 
-    public static @NotNull NpmPackage fromPackage(InputStream tgz) throws IOException {
+  public static @NotNull NpmPackage fromPackage(InputStream tgz) throws IOException {
       return fromPackage(tgz, null, false);
   }
 

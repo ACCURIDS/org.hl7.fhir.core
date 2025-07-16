@@ -1,6 +1,9 @@
 package org.hl7.fhir.convertors.misc;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream ;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
