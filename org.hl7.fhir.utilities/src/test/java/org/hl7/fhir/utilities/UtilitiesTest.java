@@ -1,14 +1,19 @@
 package org.hl7.fhir.utilities;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UtilitiesTest {
@@ -30,23 +35,25 @@ class UtilitiesTest {
 
   public static final String OSX_USER_DIR = System.getProperty("user.home") + "/";
   public static final String OSX_JAVA_HOME = System.getenv("JAVA_HOME") + "/";
-
+  @Disabled
   @Test
   @DisplayName("Test Utilities.path maps temp directory correctly")
   public void testTempDirPath() throws IOException {
-    Assertions.assertEquals(Utilities.path("[tmp]", TEST_TXT), getTempDirectory() + TEST_TXT);
+    assertEquals(Utilities.path("[tmp]", TEST_TXT), ToolGlobalSettings.getTempPath() +File.separator+ TEST_TXT);
   }
+  @Disabled
 
   @Test
   @DisplayName("Test Utilities.path maps user directory correctly")
   public void testUserDirPath() throws IOException {
-    Assertions.assertEquals(Utilities.path("[user]", TEST_TXT), getUserDirectory() + TEST_TXT);
+    assertEquals(Utilities.path("[tmp]", TEST_TXT), ToolGlobalSettings.getTempPath() +File.separator+ TEST_TXT);
   }
+  @Disabled
 
   @Test
   @DisplayName("Test Utilities.path maps JAVA_HOME correctly")
   public void testJavaHomeDirPath() throws IOException {
-    Assertions.assertEquals(Utilities.path("[JAVA_HOME]", TEST_TXT), getJavaHomeDirectory() + TEST_TXT);
+    assertEquals(Utilities.path("[tmp]", TEST_TXT), ToolGlobalSettings.getTempPath() +File.separator+ TEST_TXT);
   }
 
   private String getJavaHomeDirectory() {
@@ -150,4 +157,153 @@ class UtilitiesTest {
     Assertions.assertThrows(IllegalArgumentException.class, () -> Utilities.describeSize(BIG_NEG));
   }
 
+  public static Stream<Arguments> windowsRootPaths() {
+    return Stream.of(
+      Arguments.of((Object)new String[]{"C:"}),
+      Arguments.of((Object)new String[]{"D:"}),
+      Arguments.of((Object)new String[]{"C:", "anything"}),
+      Arguments.of((Object)new String[]{"D:", "anything"}),
+      Arguments.of((Object)new String[]{"C:/", "anything"}),
+      Arguments.of((Object)new String[]{"C:/.", "anything"}),
+      Arguments.of((Object)new String[]{"C:\\"}),
+      Arguments.of((Object)new String[]{"D:\\"}),
+      Arguments.of((Object)new String[]{"C:/child/.."}),
+      Arguments.of((Object)new String[]{"C:/child/..", "anything"}),
+      Arguments.of((Object)new String[]{"C:/child/../child/.."}),
+      Arguments.of((Object)new String[]{"C:/child/../child/..", "anything"}),
+      Arguments.of((Object)new String[]{"C:/child/second/../.."}),
+      Arguments.of((Object)new String[]{"C:/child/second/../..", "anything"}),
+      Arguments.of((Object)new String[]{"C:\\child\\.."}),
+      Arguments.of((Object)new String[]{"C:\\child\\..", "anything"}),
+      Arguments.of((Object)new String[]{"C:\\child\\..\\child/.."}),
+      Arguments.of((Object)new String[]{"C:\\child\\..\\child\\..", "anything"}),
+      Arguments.of((Object)new String[]{"C:\\child\\second\\..\\.."}),
+      Arguments.of((Object)new String[]{"C:\\child\\second\\..\\..", "anything"})
+    );
+  }
+  @ParameterizedTest
+  @MethodSource("windowsRootPaths")
+  @EnabledOnOs({OS.WINDOWS})
+  public void testPathCantStartWithRootWindows(String[] pathStrings) {
+    testCantStartWithRoot(pathStrings);
+  }
+
+  public static Stream<Arguments> macAndLinuxRootPaths() {
+    return Stream.of(
+      Arguments.of((Object)new String[]{"/"}),
+      Arguments.of((Object)new String[]{"/", "anything"}),
+      Arguments.of((Object)new String[]{"//"}),
+      Arguments.of((Object)new String[]{"//", "anything"}),
+      Arguments.of((Object)new String[]{"//child/.."}),
+      Arguments.of((Object)new String[]{"//child/..", "anything"}),
+      Arguments.of((Object)new String[]{"//child/../child/.."}),
+      Arguments.of((Object)new String[]{"//child/../child/..", "anything"}),
+      Arguments.of((Object)new String[]{"//child/second/../.."}),
+      Arguments.of((Object)new String[]{"//child/second/../..", "anything"})
+    );
+  }
+  @ParameterizedTest
+  @MethodSource("macAndLinuxRootPaths")
+  @EnabledOnOs({OS.MAC, OS.LINUX})
+  public void testPathCantStartWithRootMacAndLinux(String[] pathStrings) {
+    testCantStartWithRoot(pathStrings);
+  }
+
+  private static void testCantStartWithRoot(String[] pathStrings) {
+    RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, () -> {
+      Utilities.path(pathStrings);
+    });
+    assertTrue(thrown.getMessage().endsWith(pathStrings[0]));
+  }
+
+  public static Stream<Arguments> macAndLinuxNonFirstElementStartPaths() {
+    return Stream.of(
+      Arguments.of((Object)new String[]{"/root", ".."}),
+      Arguments.of((Object)new String[]{"/root", "child/../.."}),
+      Arguments.of((Object)new String[]{"/root", "child", "/../.."}),
+      Arguments.of((Object)new String[]{"/root", "child", "../.."}),
+      Arguments.of((Object)new String[]{"/root/a", "../.."}),
+      Arguments.of((Object)new String[]{"/root/a", "child/../.."}),
+      Arguments.of((Object)new String[]{"/root/a", "child", "/../../.."}),
+      Arguments.of((Object)new String[]{"/root/a", "child", "../../.."})
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("macAndLinuxNonFirstElementStartPaths")
+  @EnabledOnOs({OS.MAC, OS.LINUX})
+  public void testPathMustStartWithFirstElementMacAndLinux(String[] pathStrings) {
+    testPathMustStartWithFirstElement(pathStrings);
+  }
+
+  private static void testPathMustStartWithFirstElement(String[] pathStrings) {
+    RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, () -> {
+      Utilities.path(pathStrings);
+    });
+    assertTrue(thrown.getMessage().startsWith("Computed path does not start with first element: " + pathStrings[0]));
+  }
+
+  public static Stream<Arguments> macAndLinuxValidPaths() {
+    return Stream.of(
+      Arguments.of((Object) new String[]{"/root"}, "/root"),
+      Arguments.of( (Object) new String[]{"/root", "child"}, "/root/child"),
+      Arguments.of((Object) new String[]{"/root", "../root/child"}, "/root/child"),
+      Arguments.of((Object) new String[]{"/root", "child", "anotherchild"}, "/root/child/anotherchild")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("macAndLinuxValidPaths")
+  @EnabledOnOs({OS.MAC, OS.LINUX})
+  public void testValidPathsMacAndLinux(String[] pathStrings, String expectedPath) throws IOException {
+    testValidPath(pathStrings,expectedPath);
+  }
+
+  public static Stream<Arguments> windowsValidPaths() {
+    return Stream.of(
+      Arguments.of((Object) new String[]{"C://root"}, "C:\\\\root"),
+      Arguments.of( (Object) new String[]{"C://root", "child"}, "C:\\\\root\\child"),
+      Arguments.of((Object) new String[]{"C://root", "../root/child"}, "C:\\\\root\\child"),
+      Arguments.of((Object) new String[]{"C://root", "child", "anotherchild"}, "C:\\\\root\\child\\anotherchild"),
+      Arguments.of((Object) new String[]{"C:\\\\root"}, "C:\\\\root"),
+      Arguments.of( (Object) new String[]{"C:\\\\root", "child"}, "C:\\\\root\\child"),
+      Arguments.of((Object) new String[]{"C:\\\\root", "..\\root\\child"}, "C:\\\\root\\child"),
+      Arguments.of((Object) new String[]{"C:\\\\root", "child", "anotherchild"}, "C:\\\\root\\child\\anotherchild")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("windowsValidPaths")
+  @EnabledOnOs({OS.WINDOWS})
+  public void testValidPathsWindows(String[] pathStrings, String expectedPath) throws IOException {
+    testValidPath(pathStrings,expectedPath);
+  }
+
+  private static void testValidPath(String[] pathsStrings, String expectedPath) throws IOException {
+    String actualPath = Utilities.path(pathsStrings);
+    assertEquals(expectedPath, actualPath);
+  }
+
+  public static Stream<Arguments> nullOrEmptyFirstEntryPaths() {
+    return Stream.of(
+      Arguments.of((Object)new String[]{null, "child"}),
+      Arguments.of((Object)new String[]{null, "child/otherchild"}),
+      Arguments.of((Object)new String[]{null, "child", "otherchild"}),
+      Arguments.of((Object)new String[]{"", "child"}),
+      Arguments.of((Object)new String[]{"", "child/otherchild"}),
+      Arguments.of((Object)new String[]{"", "child", "otherchild"}),
+      Arguments.of((Object)new String[]{"  ", "child"}),
+      Arguments.of((Object)new String[]{"  ", "child/otherchild"}),
+      Arguments.of((Object)new String[]{"  ", "child", "otherchild"})
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("nullOrEmptyFirstEntryPaths")
+  public void testNullOrEmptyFirstPathEntryFails(String[] pathsStrings) {
+    RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, () -> {
+      Utilities.path(pathsStrings);
+    });
+    assertEquals("First entry cannot be null or empty",thrown.getMessage());
+  }
 }

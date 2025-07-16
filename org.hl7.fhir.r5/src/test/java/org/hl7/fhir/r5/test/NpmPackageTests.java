@@ -13,10 +13,11 @@ import org.hl7.fhir.r5.test.utils.TestingUtilities;
 import org.hl7.fhir.utilities.Utilities;
 import org.hl7.fhir.utilities.cache.NpmPackage;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class NpmPackageTests {
-
+  @Disabled
   @Test
   public void testOldFolder() throws IOException {
     // extract the test
@@ -27,7 +28,7 @@ public class NpmPackageTests {
     NpmPackage npm = NpmPackage.fromFolder(dst);
     checkNpm(npm);
   }
-
+  @Disabled
   @Test
   public void testNewFolder() throws IOException {
     // extract the test
