@@ -3,16 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>ca.uhn.hapi.fhir</groupId>
-        <artifactId>org.hl7.fhir.core</artifactId>
+        <groupId>com.accurids.fhir</groupId>
+        <artifactId>accurids-fhir-core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.hl7.fhir.report</artifactId>
-    <packaging>bundle</packaging>
+    <artifactId>accurids.fhir.report</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -32,13 +32,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>org.hl7.fhir.convertors</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>accurids.fhir.convertors</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>org.hl7.fhir.r5</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>accurids.fhir.r5</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -48,13 +48,13 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>org.hl7.fhir.utilities</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>accurids.fhir.utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>org.hl7.fhir.validation</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>accurids.fhir.validation</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
