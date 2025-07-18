@@ -34,7 +34,7 @@
     </properties>
     <groupId>com.accurids.fhir</groupId>
 
-    <artifactId>accurids-fhir-core</artifactId>
+    <artifactId>core</artifactId>
     <packaging>pom</packaging>
 
     <name>ACCURIDS Secured FHIR Core</name>
@@ -60,10 +60,11 @@
     </modules>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
+            <repository>
+                <id>github</id>
+                <name>Accurids FHIR Packages</name>
+                <url>https://maven.pkg.github.com/ACCURIDS/org.hl7.fhir.core</url>
+            </repository>
     </distributionManagement>
 
     <repositories>
@@ -429,17 +430,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

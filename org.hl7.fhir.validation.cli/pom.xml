@@ -4,19 +4,19 @@
 
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>accurids-fhir-core</artifactId>
+        <artifactId>core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>accurids.fhir.validation.cli</artifactId>
+    <artifactId>validation.cli</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
 
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.validation</artifactId>
+            <artifactId>validation</artifactId>
             <version>${project.version}</version>
         </dependency>
 

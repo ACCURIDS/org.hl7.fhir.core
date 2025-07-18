@@ -4,19 +4,19 @@
 
 	<parent>
 		<groupId>com.accurids.fhir</groupId>
-		<artifactId>accurids-fhir-core</artifactId>
+		<artifactId>core</artifactId>
 		<version>5.1.0-patch1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>accurids.fhir.r5</artifactId>
+	<artifactId>r5</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencies>
 		<!-- HAPI Dependencies -->
 		<dependency>
 			<groupId>com.accurids.fhir</groupId>
-			<artifactId>accurids.fhir.utilities</artifactId>
+			<artifactId>utilities</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

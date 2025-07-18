@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>accurids-fhir-core</artifactId>
+        <artifactId>core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>accurids.fhir.validation</artifactId>
+    <artifactId>validation</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -22,34 +22,34 @@
 
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.utilities</artifactId>
+            <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- FHIR Versions -->
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.dstu2</artifactId>
+            <artifactId>dstu2</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.dstu2016may</artifactId>
+            <artifactId>dstu2016may</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.dstu3</artifactId>
+            <artifactId>dstu3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.r4</artifactId>
+            <artifactId>r4</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.convertors</artifactId>
+            <artifactId>convertors</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -220,7 +220,7 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.r5</artifactId>
+            <artifactId>r5</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End to end -->

@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>accurids-fhir-core</artifactId>
+        <artifactId>core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>accurids.fhir.dstu2</artifactId>
+    <artifactId>dstu2</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.utilities</artifactId>
+            <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- UCUM -->

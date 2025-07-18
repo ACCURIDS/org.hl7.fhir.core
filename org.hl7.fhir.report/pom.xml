@@ -4,19 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>accurids-fhir-core</artifactId>
+        <artifactId>core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>accurids.fhir.report</artifactId>
+    <artifactId>report</artifactId>
     <packaging>jar</packaging>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <jacoco_version>0.8.5</jacoco_version>
+        <jacoco_version>0.8.8</jacoco_version>
     </properties>
 
     <dependencies>
@@ -33,12 +33,12 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.convertors</artifactId>
+            <artifactId>convertors</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.r5</artifactId>
+            <artifactId>r5</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -49,12 +49,12 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.utilities</artifactId>
+            <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>accurids.fhir.validation</artifactId>
+            <artifactId>validation</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
