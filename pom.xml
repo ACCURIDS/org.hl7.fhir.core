@@ -37,12 +37,12 @@
     <artifactId>core</artifactId>
     <packaging>pom</packaging>
 
-    <name>ACCURIDS Secured FHIR Core</name>
-    <description>FHIR Core 5.1.0 with CVE patches</description>
+    <name>Accurids Secured FHIR Core</name>
+    <description>Fork of HL7 FHIR Core with applied CVE-related security patches</description>
 
     <organization>
-        <name>ACCURIDS</name>
-        <url>http://hl7.org</url>
+        <name>Accurids</name>
+        <url>https://accurids.com</url>
     </organization>
 
     <modules>

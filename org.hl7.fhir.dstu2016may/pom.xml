@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>dstu2016may</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>

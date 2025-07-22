@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>r5</artifactId>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 
 	<dependencies>
 		<!-- HAPI Dependencies -->
