@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>convertors</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <dependencies>
 
