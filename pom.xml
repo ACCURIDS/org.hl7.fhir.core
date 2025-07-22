@@ -32,15 +32,17 @@
         <thymeleaf_version>3.1.2.RELEASE</thymeleaf_version>
         <cqframework_version>1.4.9</cqframework_version>
     </properties>
+    <groupId>com.accurids.fhir</groupId>
 
-    <artifactId>org.hl7.fhir.core</artifactId>
+    <artifactId>core</artifactId>
     <packaging>pom</packaging>
 
-    <name>HL7 Core Artifacts</name>
+    <name>Accurids Secured FHIR Core</name>
+    <description>Fork of HL7 FHIR Core with applied CVE-related security patches</description>
 
     <organization>
-        <name>Health Level 7</name>
-        <url>http://hl7.org</url>
+        <name>Accurids</name>
+        <url>https://accurids.com</url>
     </organization>
 
     <modules>
@@ -58,10 +60,11 @@
     </modules>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
+            <repository>
+                <id>github</id>
+                <name>Accurids FHIR Packages</name>
+                <url>https://maven.pkg.github.com/ACCURIDS/org.hl7.fhir.core</url>
+            </repository>
     </distributionManagement>
 
     <repositories>
@@ -124,7 +127,11 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.15.1</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.10.0</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
@@ -158,6 +165,11 @@
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson_databind_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson_databind_version}</version>
             </dependency>
@@ -179,8 +191,8 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>org.hl7.fhir.utilities</artifactId>
+                <groupId>com.accurids.fhir</groupId>
+                <artifactId>utilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -233,6 +245,37 @@
                 </configuration>
                 <dependencies>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- Generates javadoc JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <source>17</source> <!-- Match your Java version -->
+                    <failOnError>false</failOnError> <!-- Temporary for debugging -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -396,17 +439,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

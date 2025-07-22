@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ca.uhn.hapi.fhir</groupId>
-        <artifactId>org.hl7.fhir.core</artifactId>
+        <groupId>com.accurids.fhir</groupId>
+        <artifactId>core</artifactId>
         <version>5.1.0-patch1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>org.hl7.fhir.dstu2</artifactId>
+    <artifactId>dstu2</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -20,8 +20,9 @@
             <artifactId>hapi-fhir-base</artifactId>
         </dependency>
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>org.hl7.fhir.utilities</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- UCUM -->
         <dependency>
