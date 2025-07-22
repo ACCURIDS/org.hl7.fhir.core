@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>validation</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
 

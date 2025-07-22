@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>validation.cli</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
 
