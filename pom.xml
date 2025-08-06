@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ca.uhn.hapi.fhir</groupId>
-        <artifactId>hapi-deployable-pom</artifactId>
-        <version>5.1.0</version>
+        <groupId>com.accurids</groupId>
+        <artifactId>deployable-pom</artifactId>
+        <version>2025.8.0</version>
     </parent>
 
     <!--
@@ -13,12 +13,12 @@
     each other. It is fine to bump the point version of this POM without affecting
     HAPI FHIR.
     -->
-    <version>5.1.0-patch1</version>
+    <version>2025.8.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <hapi_fhir_version>5.1.0</hapi_fhir_version>
+        <hapi_fhir_version>2025.8.0</hapi_fhir_version>
         <validator_test_case_version>1.1.30</validator_test_case_version>
         <junit_jupiter_version>5.6.2</junit_jupiter_version>
         <junit_vintage_version>5.6.3</junit_vintage_version>
@@ -68,6 +68,14 @@
     </distributionManagement>
 
     <repositories>
+        <repository>
+            <id>github</id>
+            <name>Accurids FHIR Packages</name>
+            <url>https://maven.pkg.github.com/ACCURIDS/org.hl7.fhir.core</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
@@ -180,9 +188,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-base</artifactId>
-                <version>${hapi_fhir_version}</version>
+                <groupId>com.accurids</groupId>
+                <artifactId>base</artifactId>
+                <version>2025.8.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>ca.uhn.hapi.fhir</groupId>
@@ -196,13 +204,13 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-structures-r4</artifactId>
+                <groupId>com.accurids</groupId>
+                <artifactId>structures-r4</artifactId>
                 <version>${hapi_fhir_version}</version>
             </dependency>
             <dependency>
-                <groupId>ca.uhn.hapi.fhir</groupId>
-                <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+                <groupId>com.accurids</groupId>
+                <artifactId>validation-resources-r4</artifactId>
                 <version>${hapi_fhir_version}</version>
             </dependency>
 
@@ -393,7 +401,7 @@
                     <instructions>
                         <_removeheaders>Private-Package</_removeheaders>
                         <Fragment-Host>
-                            ca.uhn.hapi.fhir.hapi-fhir-base
+                            com.accurids.base
                         </Fragment-Host>
                     </instructions>
                 </configuration>
