@@ -4,26 +4,26 @@
 
 	<parent>
 		<groupId>com.accurids.fhir</groupId>
-		<artifactId>core</artifactId>
-		<version>2025.8.0</version>
+		<artifactId>org.hl7.fhir.core</artifactId>
+		<version>2025.08.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>r5</artifactId>
+	<artifactId>org.hl7.fhir.r5</artifactId>
 	<packaging>bundle</packaging>
 
 	<dependencies>
 		<!-- HAPI Dependencies -->
 		<dependency>
 			<groupId>com.accurids.fhir</groupId>
-			<artifactId>utilities</artifactId>
+			<artifactId>org.hl7.fhir.utilities</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.accurids</groupId>
-			<artifactId>base</artifactId>
-			<version>2025.8.0</version>
+			<groupId>com.accurids.fhir</groupId>
+			<artifactId>hapi-fhir-base</artifactId>
+			<version>2025.08.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>ca.uhn.hapi.fhir</groupId>

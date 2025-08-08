@@ -4,65 +4,65 @@
 
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>core</artifactId>
-        <version>2025.8.0</version>
+        <artifactId>org.hl7.fhir.core</artifactId>
+        <version>2025.08.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>validation</artifactId>
+    <artifactId>org.hl7.fhir.validation</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
 
         <!-- HAPI Dependencies -->
         <dependency>
-            <groupId>com.accurids</groupId>
-            <artifactId>base</artifactId>
-            <version>2025.8.0</version>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>hapi-fhir-base</artifactId>
+            <version>2025.08.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>org.hl7.fhir.utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- FHIR Versions -->
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu2</artifactId>
+            <artifactId>org.hl7.fhir.dstu2</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu2016may</artifactId>
+            <artifactId>org.hl7.fhir.dstu2016may</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu3</artifactId>
+            <artifactId>org.hl7.fhir.dstu3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>r4</artifactId>
+            <artifactId>org.hl7.fhir.r4</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>convertors</artifactId>
+            <artifactId>org.hl7.fhir.convertors</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Validation resources (StructureDefinitions, ValueSets, etc.) -->
         <dependency>
-            <groupId>com.accurids</groupId>
-            <artifactId>structures-r4</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.accurids</groupId>
-            <artifactId>validation-resources-r4</artifactId>
+            <groupId>com.accurids.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -221,7 +221,7 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>r5</artifactId>
+            <artifactId>org.hl7.fhir.r5</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End to end -->
