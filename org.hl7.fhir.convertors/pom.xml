@@ -25,7 +25,7 @@
         <dependency>
             <groupId>com.accurids.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
-            <version>2025.08.0</version>
+            <version>${hapi_fhir_version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>

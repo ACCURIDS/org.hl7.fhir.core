@@ -190,13 +190,7 @@
             <dependency>
                 <groupId>com.accurids.fhir</groupId>
                 <artifactId>hapi-fhir-base</artifactId>
-                <version>2025.08.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>ca.uhn.hapi.fhir</groupId>
-                        <artifactId>hapi-fhir-utilities</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${hapi_fhir_version}</version>
             </dependency>
             <dependency>
                 <groupId>com.accurids.fhir</groupId>
@@ -401,7 +395,7 @@
                     <instructions>
                         <_removeheaders>Private-Package</_removeheaders>
                         <Fragment-Host>
-                            com.accurids.base
+                            com.accurids.fhir.hapi-fhir-base
                         </Fragment-Host>
                     </instructions>
                 </configuration>
