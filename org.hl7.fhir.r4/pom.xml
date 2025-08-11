@@ -28,12 +28,6 @@
 			<groupId>com.accurids.fhir</groupId>
 			<artifactId>hapi-fhir-base</artifactId>
 			<version>${hapi_fhir_version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>ca.uhn.hapi.fhir</groupId>
-					<artifactId>hapi-fhir-utilities</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- UCUM -->
