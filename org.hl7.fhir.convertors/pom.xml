@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>core</artifactId>
-        <version>5.1.0-patch1</version>
+        <artifactId>org.hl7.fhir.core</artifactId>
+        <version>2025.08.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>convertors</artifactId>
+    <artifactId>org.hl7.fhir.convertors</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -23,12 +23,13 @@
         
         <!-- HAPI Dependencies -->
         <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
+            <groupId>com.accurids.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
+            <version>${hapi_fhir_version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>org.hl7.fhir.utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -42,27 +43,27 @@
         <!-- FHIR Versions -->
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu2</artifactId>
+            <artifactId>org.hl7.fhir.dstu2</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu2016may</artifactId>
+            <artifactId>org.hl7.fhir.dstu2016may</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>dstu3</artifactId>
+            <artifactId>org.hl7.fhir.dstu3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>r4</artifactId>
+            <artifactId>org.hl7.fhir.r4</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>r5</artifactId>
+            <artifactId>org.hl7.fhir.r5</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.accurids.fhir</groupId>
-        <artifactId>core</artifactId>
-        <version>5.1.0-patch1</version>
+        <artifactId>org.hl7.fhir.core</artifactId>
+        <version>2025.08.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>report</artifactId>
+    <artifactId>org.hl7.fhir.report</artifactId>
     <packaging>bundle</packaging>
 
     <properties>
@@ -33,12 +33,12 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>convertors</artifactId>
+            <artifactId>org.hl7.fhir.convertors</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>r5</artifactId>
+            <artifactId>org.hl7.fhir.r5</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -49,12 +49,12 @@
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>utilities</artifactId>
+            <artifactId>org.hl7.fhir.utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.accurids.fhir</groupId>
-            <artifactId>validation</artifactId>
+            <artifactId>org.hl7.fhir.validation</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
