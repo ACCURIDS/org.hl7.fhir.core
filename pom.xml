@@ -69,12 +69,9 @@
 
     <repositories>
         <repository>
-            <id>github</id>
-            <name>Accurids FHIR Packages</name>
-            <url>https://maven.pkg.github.com/ACCURIDS/org.hl7.fhir.core</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>github-accurids-public</id>
+            <name>ACCURIDS Public GitHub Packages</name>
+            <url>https://maven.pkg.github.com/ACCURIDS/*</url>
         </repository>
         <repository>
             <id>central</id>
