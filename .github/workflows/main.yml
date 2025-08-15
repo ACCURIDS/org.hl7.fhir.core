@@ -41,3 +41,29 @@ jobs:
       # The '--batch-mode' flag is used to prevent interactive questions during the build.
       - name: Run OWASP Dependency-Check
         run: mvn --batch-mode org.owasp:dependency-check-maven:check
+        
+      - name: Send notification email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Specify your mail server details. This example uses Gmail.
+          server_address: smtp.gmail.com
+          server_port: 465
+          
+          # Your email credentials, which should be stored as encrypted secrets in your repository settings.
+          username: ${{secrets.MAIL_USERNAME}}
+          password: ${{secrets.MAIL_PASSWORD}}
+          
+          # Email content details.
+          subject: Dependency Check Report for ${{ github.repository }} - ${{ job.status }}
+          to: your-email@example.com # Change this to your recipient's email address
+          from: GitHub Actions <noreply@github.com> # The sender's name
+          
+          # The body of the email, which includes the job status and a link to the workflow run.
+          body: |
+            The dependency review job for the repository ${{ github.repository }} has completed.
+
+            Status: ${{ job.status }}
+
+            You can view the full logs and summary here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
