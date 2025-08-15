@@ -1,0 +1,48 @@
+name: Dependency Check2
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly scan
+
+jobs:
+  dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Run OWASP Dependency Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'your-project-name'
+        format: 'ALL'
+        fail_on_cvss: 7 # Fail if vulnerabilities with CVSS >= 7 are found
+        additional_arguments: '--scan **/* --out ./reports'
+
+    - name: Upload report artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: dependency-check-report
+        path: reports/
+        
+    - name: Display summary
+      run: |
+        if [ -f reports/dependency-check-report.html ]; then
+          echo "Dependency Check report generated"
+          echo "High vulnerabilities found: $(grep -o 'High<\/td><td>[0-9]*' reports/dependency-check-report.html | grep -o '[0-9]*$' || echo 0)"
+          echo "Medium vulnerabilities found: $(grep -o 'Medium<\/td><td>[0-9]*' reports/dependency-check-report.html | grep -o '[0-9]*$' || echo 0)"
+        else
+          echo "No dependency check report generated"
+          exit 1
+        fi
