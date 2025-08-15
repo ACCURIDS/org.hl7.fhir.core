@@ -31,10 +31,10 @@ jobs:
       - name: Run Dependency-Check with Retry Logic
         run: |
           mkdir -p reports
-          
+          echo ${{ secrets.NVD_API_KEY }}
           # First try with API delay
           dependency-check.sh \
-            --project "My Project" \
+            --project "FHIR CORE" \
             --scan . \
             --format "ALL" \
             --out reports \
@@ -43,7 +43,7 @@ jobs:
             
           # Fallback to local cache if API fails
           dependency-check.sh \
-            --project "My Project" \
+            --project "FHIR CORE" \
             --scan . \
             --format "ALL" \
             --out reports \
