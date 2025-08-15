@@ -54,8 +54,7 @@ jobs:
             --scan . \
             --format "ALL" \
             --out reports \
-            --nvdApiKey 6ac67248-899f-4495-9d25-6648be9bf496
-            --nvdDelay 120
+            --noupdate
 
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
