@@ -44,18 +44,18 @@ jobs:
           # Find the extracted dependency-check directory
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
           echo "Using directory: $DCDIR"
-          
-          # Make sure the output folder exists
+
+          # Ensure output folder exists
           mkdir -p reports
-          
-          # Run the scan
+
+          # Run the scan with NVD API Key
           "$DCDIR/bin/dependency-check.sh" \
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
             --out reports \
-            --noupdate
-          
+            --nvdApiKey 6ac67248-899f-4495-9d25-6648be9bf496
+
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
 
