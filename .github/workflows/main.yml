@@ -53,7 +53,8 @@ jobs:
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
-            --out reports
+            --out reports \
+            --noupdate
           
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
