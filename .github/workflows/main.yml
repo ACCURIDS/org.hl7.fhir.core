@@ -41,14 +41,23 @@ jobs:
 
       - name: Run OWASP Dependency-Check
         run: |
+          # Find the extracted dependency-check directory
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
+          echo "Using directory: $DCDIR"
+          
+          # Make sure the output folder exists
+          mkdir -p reports
+          
+          # Run the scan
           "$DCDIR/bin/dependency-check.sh" \
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
             --out reports
+          
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
+
 
 
       - name: Upload scan report as artifact
