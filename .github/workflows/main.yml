@@ -3,7 +3,7 @@ name: CVE Dependency Scan
 on:
   schedule:
     - cron: '0 3 * * 1' # Runs every Monday at 03:00 UTC
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   dependency-scan:
@@ -30,12 +30,12 @@ jobs:
       - name: Install OWASP Dependency-Check
         run: |
           wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.1.0/dependency-check-9.1.0-release.zip
-          unzip dependency-check-9.1.0-release.zip -d $HOME/dependency-check
-          chmod +x $HOME/dependency-check/bin/dependency-check.sh
+          unzip dependency-check-9.1.0-release.zip -d dependency-check
+          chmod +x dependency-check/bin/dependency-check.sh
 
       - name: Run OWASP Dependency-Check
         run: |
-          $HOME/dependency-check/bin/dependency-check.sh \
+          dependency-check/bin/dependency-check.sh \
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
