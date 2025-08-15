@@ -38,7 +38,11 @@ jobs:
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
           echo "Using directory: $DCDIR"
           chmod +x "$DCDIR/bin/dependency-check.sh"
-
+      - name: Cache dependency-check database
+        uses: actions/cache@v4
+        with:
+          path: dependency-check-data
+          key: dependency-check-db-${{ hashFiles('**/pom.xml') }}
       - name: Run OWASP Dependency-Check
         run: |
           # Find the extracted dependency-check directory
@@ -53,7 +57,8 @@ jobs:
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
-            --out reports
+            --out reports \
+            --data dependency-check-data
 
 
           echo "=== CVE Scan Summary ==="
