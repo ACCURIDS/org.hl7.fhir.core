@@ -1,51 +1,43 @@
-name: CVE Dependency Scan
 
+# Name of the workflow, which will be displayed on the Actions tab of your GitHub repository.
+name: Maven Dependency Vulnerability Check
+
+# Controls when the workflow will run.
 on:
-  schedule:
-    - cron: '0 3 * * 1'
-  workflow_dispatch:
+  # Triggers the workflow on push events but only for the "main" branch.
+  push:
+    branches: [ 5.1.0-patch1 ]
+  # Triggers the workflow on pull request events targeted at the "main" branch.
+  pull_request:
+    branches: [ 5.1.0-patch1 ]
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
-  dependency-scan:
+  # Defines a job with the ID "dependency-check".
+  dependency-check:
+    # The type of runner that the job will run on.
     runs-on: ubuntu-latest
-    env:
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-      
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Java
+    # A container for all the steps in the "dependency-check" job.
+    steps:
+      # Step 1: Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up a specific version of Java Development Kit (JDK) for the job.
+      # The org.hl7.fhir.core project requires Java 11 or later. We'll use 17.
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
+          # Optional: Caches the local Maven repository to speed up subsequent runs.
+          cache: maven
 
-      - name: Install OWASP Dependency-Check
-        run: |
-          wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v9.1.0/dependency-check-9.1.0-release.zip
-          unzip -q dependency-check-9.1.0-release.zip
-          DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
-          chmod +x "$DCDIR/bin/dependency-check.sh"
-          echo "$DCDIR/bin" >> $GITHUB_PATH
-
-      - name: Run Dependency-Check with Retry Logic
-        run: |
-          mkdir -p reports
-          echo ${{ secrets.NVD_API_KEY }}
-          # First try with API delay
-          dependency-check.sh \
-            --project "FHIR CORE" \
-            --scan . \
-            --format "ALL" \
-            --out reports \
-            --nvdApiKey "$NVD_API_KEY" \
-            --nvdApiDelay 5000 || \
-            
-          # Fallback to local cache if API fails
-          dependency-check.sh \
-            --project "FHIR CORE" \
-            --scan . \
-            --format "ALL" \
-            --out reports \
-            --disableNVD true \
-            --enableExperimental
+      # Step 3: Run the OWASP dependency-check.
+      # This command tells Maven to execute the 'check' goal from the OWASP plugin.
+      # It will download a database of known vulnerabilities and check your project's
+      # dependencies against it. The report is printed to the log.
+      # The '--batch-mode' flag is used to prevent interactive questions during the build.
+      - name: Run OWASP Dependency-Check
+        run: mvn --batch-mode org.owasp:dependency-check-maven:check
