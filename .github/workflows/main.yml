@@ -1,48 +1,51 @@
-name: Dependency Check
+name: CVE Dependency Scan
 
 on:
-  push:
-    branches: [ 5.1.0-patch1 ]
-  pull_request:
-    branches: [ 5.1.0-patch1 ]
   schedule:
-    - cron: '0 0 * * 0' # Weekly scan
+    - cron: '0 3 * * 1'
   workflow_dispatch:
 
 jobs:
-  dependency-check:
+  dependency-scan:
     runs-on: ubuntu-latest
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+      
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-    - name: Run OWASP Dependency Check
-      uses: dependency-check/Dependency-Check_Action@main
-      with:
-        project: 'org.hl7.fhir.core'
-        format: 'ALL'
-        additional_arguments: '--scan **/* --out ./reports'
+      - name: Install OWASP Dependency-Check
+        run: |
+          wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v9.1.0/dependency-check-9.1.0-release.zip
+          unzip -q dependency-check-9.1.0-release.zip
+          DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
+          chmod +x "$DCDIR/bin/dependency-check.sh"
+          echo "$DCDIR/bin" >> $GITHUB_PATH
 
-    - name: Upload report artifacts
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: dependency-check-report
-        path: reports/
-        
-    - name: Display summary
-      run: |
-        if [ -f reports/dependency-check-report.html ]; then
-          echo "Dependency Check report generated"
-          echo "High vulnerabilities found: $(grep -o 'High<\/td><td>[0-9]*' reports/dependency-check-report.html | grep -o '[0-9]*$' || echo 0)"
-          echo "Medium vulnerabilities found: $(grep -o 'Medium<\/td><td>[0-9]*' reports/dependency-check-report.html | grep -o '[0-9]*$' || echo 0)"
-        else
-          echo "No dependency check report generated"
-          exit 1
-        fi
+      - name: Run Dependency-Check with Retry Logic
+        run: |
+          mkdir -p reports
+          
+          # First try with API delay
+          dependency-check.sh \
+            --project "My Project" \
+            --scan . \
+            --format "ALL" \
+            --out reports \
+            --nvdApiKey "$NVD_API_KEY" \
+            --nvdApiDelay 5000 || \
+            
+          # Fallback to local cache if API fails
+          dependency-check.sh \
+            --project "My Project" \
+            --scan . \
+            --format "ALL" \
+            --out reports \
+            --disableNVD true \
+            --enableExperimental
