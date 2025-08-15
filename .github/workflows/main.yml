@@ -38,12 +38,16 @@ jobs:
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
           echo "Using directory: $DCDIR"
           chmod +x "$DCDIR/bin/dependency-check.sh"
+
       - name: Cache dependency-check database
         uses: actions/cache@v4
         with:
           path: dependency-check-data
           key: dependency-check-db-${{ hashFiles('**/pom.xml') }}
+
       - name: Run OWASP Dependency-Check
+        env:
+          NVD_API_KEY: 6ac67248-899f-4495-9d25-6648be9bf496
         run: |
           # Find the extracted dependency-check directory
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
@@ -58,13 +62,11 @@ jobs:
             --scan . \
             --format "ALL" \
             --out reports \
-            --data dependency-check-data
-
+            --data dependency-check-data \
+            --nvdApiKey "$NVD_API_KEY"
 
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
-
-
 
       - name: Upload scan report as artifact
         uses: actions/upload-artifact@v4
