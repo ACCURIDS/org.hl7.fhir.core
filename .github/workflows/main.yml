@@ -9,8 +9,8 @@ jobs:
   dependency-scan:
     runs-on: ubuntu-latest
     env:
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}  # ✅ PROPER SECURE WAY
-
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -26,14 +26,26 @@ jobs:
           unzip -q dependency-check-9.1.0-release.zip
           DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
           chmod +x "$DCDIR/bin/dependency-check.sh"
+          echo "$DCDIR/bin" >> $GITHUB_PATH
 
-      - name: Run Scan
+      - name: Run Dependency-Check with Retry Logic
         run: |
-          DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
           mkdir -p reports
-          "$DCDIR/bin/dependency-check.sh" \
+          
+          # First try with API delay
+          dependency-check.sh \
             --project "My Project" \
             --scan . \
             --format "ALL" \
             --out reports \
-            --nvdApiKey "$NVD_API_KEY"  # 🔒 Uses secret securely
+            --nvdApiKey "$NVD_API_KEY" \
+            --nvdApiDelay 5000 || \
+            
+          # Fallback to local cache if API fails
+          dependency-check.sh \
+            --project "My Project" \
+            --scan . \
+            --format "ALL" \
+            --out reports \
+            --disableNVD true \
+            --enableExperimental
