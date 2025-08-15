@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository !
         uses: actions/checkout@v4
 
       - name: Set up Java
@@ -29,20 +29,24 @@ jobs:
 
       - name: Install OWASP Dependency-Check
         run: |
-          wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.1.0/dependency-check-9.1.0-release.zip
-          unzip dependency-check-9.1.0-release.zip
-          mv dependency-check-9.1.0 dependency-check
-          chmod +x dependency-check/bin/dependency-check.sh
+          wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v9.1.0/dependency-check-9.1.0-release.zip
+          unzip -q dependency-check-9.1.0-release.zip
+          # Find the extracted directory dynamically
+          DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
+          echo "Using directory: $DCDIR"
+          chmod +x "$DCDIR/bin/dependency-check.sh"
 
       - name: Run OWASP Dependency-Check
         run: |
-          dependency-check/bin/dependency-check.sh \
+          DCDIR=$(find . -maxdepth 1 -type d -name "dependency-check*" | head -n 1)
+          "$DCDIR/bin/dependency-check.sh" \
             --project "FHIR Security Scan" \
             --scan . \
             --format "ALL" \
             --out reports
           echo "=== CVE Scan Summary ==="
           cat reports/dependency-check-report.txt || true
+
 
       - name: Upload scan report as artifact
         uses: actions/upload-artifact@v4
