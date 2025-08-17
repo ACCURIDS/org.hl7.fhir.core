@@ -36,11 +36,10 @@ jobs:
       
       - name: Read Dependency Report
         run: |
-          {
-            echo 'REPORT<<EOF'
-            cat target/dependency-check-report.html
-            echo 'EOF'
-          } >> "$GITHUB_ENV"
+          REPORT="$(cat target/dependency-check-report.html)"
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          echo "$REPORT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
 
       # Send the report inline in the email
