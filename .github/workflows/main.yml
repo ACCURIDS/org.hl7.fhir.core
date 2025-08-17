@@ -34,15 +34,18 @@ jobs:
           path: target/dependency-check-report.html
           
       
-      - name: Read Dependency Report
+
+      # Read report into an environment variable safely
+      - name: Prepare HTML Report
+        id: report
         run: |
-          REPORT="$(cat target/dependency-check-report.html)"
-          echo "REPORT<<EOF" >> $GITHUB_ENV
-          echo "$REPORT" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          REPORT=$(<target/dependency-check-report.html)
+          # Escape special characters for GitHub Actions
+          REPORT="${REPORT//'%'/'%25'}"
+          REPORT="${REPORT//$'\n'/'%0A'}"
+          REPORT="${REPORT//$'\r'/'%0D'}"
+          echo "REPORT=$REPORT" >> $GITHUB_ENV
 
-
-      # Send the report inline in the email
       - name: Send Email with Report Inline
         uses: dawidd6/action-send-mail@v3
         with:
