@@ -32,9 +32,16 @@ jobs:
         with:
           name: dependency-check-report
           path: target/dependency-check-report.html
-
-      # Send report by email
-      - name: Send Email with Report
+          
+      # Deploy Dependency Report to GitHub Pages
+      - name: Deploy Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GIT_TOKEN }}
+          publish_dir: ./target
+          publish_branch: gh-pages
+          
+      - name: Send Email with Report Link
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -47,8 +54,8 @@ jobs:
           body: |
             Hello,
 
-            Please find attached the latest dependency check report for the project: ${{ github.repository }}.
+            The latest dependency check report is available at the following link:
+            https://yassinbnsalah.github.io/org.hl7.fhir.core/dependency-check-report.html
 
-            Regards,  
+            Regards,
             GitHub Actions
-          attachments: target/dependency-check-report.html
