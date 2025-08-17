@@ -24,8 +24,7 @@ jobs:
 
       # Run OWASP Dependency-Check with Maven
       - name: Run OWASP Dependency-Check
-        run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
-
+        run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -Dformat=ALL
       # Upload HTML report as artifact
       - name: Upload Dependency Report
         uses: actions/upload-artifact@v4
@@ -36,17 +35,17 @@ jobs:
       
 
       # Read report into an environment variable safely
-      - name: Prepare HTML Report
-        id: report
+      - name: Extract CVE Summary
+        id: summary
         run: |
-          REPORT=$(<target/dependency-check-report.html)
-          # Escape special characters for GitHub Actions
-          REPORT="${REPORT//'%'/'%25'}"
-          REPORT="${REPORT//$'\n'/'%0A'}"
-          REPORT="${REPORT//$'\r'/'%0D'}"
-          echo "REPORT=$REPORT" >> $GITHUB_ENV
+          TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
+          VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
+          echo "TOTAL=$TOTAL, VULN=$VULN"
+          echo "TOTAL=$TOTAL" >> $GITHUB_ENV
+          echo "VULN=$VULN" >> $GITHUB_ENV
 
-      - name: Send Email with Report Inline
+      
+      - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -56,4 +55,5 @@ jobs:
           subject: "Dependency Check Report - ${{ github.repository }}"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
-          html_body: ${{ env.REPORT }}
+          body: "Dependency Check Summary:\nTotal dependencies: ${{ env.TOTAL }}\nVulnerable dependencies: ${{ env.VULN }}\nFull report attached."
+          attachments: target/dependency-check-report.html
