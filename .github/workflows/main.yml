@@ -33,14 +33,15 @@ jobs:
           name: dependency-check-report
           path: target/dependency-check-report.html
           
-
-      # Read the HTML report into an environment variable
+      
       - name: Read Dependency Report
-        id: report
         run: |
-          echo "REPORT<<EOF" >> $GITHUB_ENV
-          cat target/dependency-check-report.html >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          {
+            echo 'REPORT<<EOF'
+            cat target/dependency-check-report.html
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
 
       # Send the report inline in the email
       - name: Send Email with Report Inline
