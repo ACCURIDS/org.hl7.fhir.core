@@ -33,15 +33,17 @@ jobs:
           name: dependency-check-report
           path: target/dependency-check-report.html
           
-      # Deploy Dependency Report to GitHub Pages
-      - name: Deploy Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target
-          publish_branch: gh-pages
-          
-      - name: Send Email with Report Link
+
+      # Read the HTML report into an environment variable
+      - name: Read Dependency Report
+        id: report
+        run: |
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          cat target/dependency-check-report.html >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # Send the report inline in the email
+      - name: Send Email with Report Inline
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -51,11 +53,4 @@ jobs:
           subject: "Dependency Check Report - ${{ github.repository }}"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
-          body: |
-            Hello,
-
-            The latest dependency check report is available at the following link:
-            https://yassinbnsalah.github.io/org.hl7.fhir.core/dependency-check-report.html
-
-            Regards,
-            GitHub Actions
+          html_body: ${{ env.REPORT }}
