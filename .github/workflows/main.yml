@@ -13,24 +13,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # =============================================
+      # STEP 1: Repository Setup
+      # Checks out the codebase for scanning
+      # =============================================
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # =============================================
+      # STEP 2: Java Environment Setup
+      # Configures JDK 17 for OWASP Dependency-Check
+      # =============================================
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # =============================================
+      # STEP 3: Vulnerability Scanning
+      # Executes OWASP Dependency-Check against the codebase
+      # Generates reports in ALL formats (HTML/JSON/XML)
+      # =============================================
       - name: Run OWASP Dependency-Check
         run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -Dformat=ALL
 
+      # =============================================
+      # STEP 4: Artifact Storage
+      # Preserves the HTML report as a workflow artifact
+      # Accessible via GitHub Actions UI
+      # =============================================
       - name: Upload Dependency Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
           path: target/dependency-check-report.html
 
+      # =============================================
+      # STEP 5: Report Analysis
+      # Extracts critical vulnerability metrics:
+      # - Total dependencies count
+      # - Vulnerable dependencies count
+      # - Top 3 critical/high CVEs (if any)
+      # - Severity distribution breakdown
+      # =============================================
       - name: Extract CVE Summary
         id: summary
         run: |
@@ -72,6 +98,15 @@ jobs:
             echo "EOF" >> $GITHUB_ENV
           fi
 
+      # =============================================
+      # STEP 6: Alert Notification
+      # Sends email ONLY when vulnerabilities are detected
+      # Includes:
+      # - Vulnerability summary
+      # - Critical findings
+      # - Recommended actions
+      # - Attached HTML report
+      # =============================================
       - name: Send Email (Only if Vulnerabilities Exist)
         if: env.VULN > 0
         uses: dawidd6/action-send-mail@v3
@@ -102,6 +137,11 @@ jobs:
             Security Bot
           attachments: target/dependency-check-report.html
 
+      # =============================================
+      # STEP 7: Clean Scan Logging
+      # Provides visible confirmation in workflow logs
+      # when no vulnerabilities are detected
+      # =============================================
       - name: Log Clean Scan (Optional)
         if: env.VULN == 0
         run: echo "✅ No CVEs found - skipping email notification"
