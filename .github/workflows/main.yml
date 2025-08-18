@@ -6,34 +6,30 @@ on:
       - 5.1.0-patch1
   pull_request:
   schedule:
-    - cron: '0 9 * * 1'
+    - cron: '0 9 * * 1'  # Weekly on Monday 9AM UTC
+
 jobs:
   dependency-check:
     runs-on: ubuntu-latest
 
     steps:
-      
       - name: Checkout code
         uses: actions/checkout@v4
 
-      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-     
       - name: Run OWASP Dependency-Check
         run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -Dformat=ALL
-      
+
       - name: Upload Dependency Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
           path: target/dependency-check-report.html
-          
-      
 
       - name: Extract CVE Summary
         id: summary
@@ -41,49 +37,71 @@ jobs:
           TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
           VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
           
-          # Extract top 3 critical CVEs (or set a default message if none)
-          CRITICAL_CVES=$(jq -r '[.dependencies[] | select(.vulnerabilities != null) | . as $dep | .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | {dependency: $dep.fileName, version: $dep.version, cve: .name, severity: .severity}] | .[0:3] | map("• \(.dependency)@\(.version) (\(.severity)) - CVE: \(.cve)") | join("\n")' target/dependency-check-report.json)
-          
-          if [ -z "$CRITICAL_CVES" ]; then
-            CRITICAL_CVES="✅ No critical vulnerabilities detected."
-          fi
-      
+          # Export variables
           echo "TOTAL=$TOTAL" >> $GITHUB_ENV
           echo "VULN=$VULN" >> $GITHUB_ENV
-          echo "CRITICAL_CVES<<EOF" >> $GITHUB_ENV
-          echo "$CRITICAL_CVES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-          echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+          
+          # Only proceed with CVE extraction if vulnerabilities exist
+          if [ "$VULN" -gt 0 ]; then
+            CRITICAL_CVES=$(jq -r '
+              [.dependencies[] | select(.vulnerabilities != null) | . as $dep | 
+              .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | 
+              {
+                dependency: $dep.fileName, 
+                version: $dep.version, 
+                cve: .name, 
+                severity: .severity,
+                description: .description
+              }] | 
+              .[0:3] | 
+              map("• \(.dependency)@\(.version) (\(.severity))\n  CVE: \(.cve)\n  Description: \(.description | sub("\\n"; " ") | .[0:100])...") | 
+              join("\n\n")
+            ' target/dependency-check-report.json)
+            
+            SEVERITY_BREAKDOWN=$(jq -r '
+              [.dependencies[].vulnerabilities[]?.severity] | 
+              group_by(.) | 
+              map("\(.[0]): \(length)") | 
+              join(", ")
+            ' target/dependency-check-report.json)
+            
+            echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M %Z')" >> $GITHUB_ENV
+            echo "SEVERITY_BREAKDOWN=$SEVERITY_BREAKDOWN" >> $GITHUB_ENV
+            echo "CRITICAL_CVES<<EOF" >> $GITHUB_ENV
+            echo "$CRITICAL_CVES" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
 
-      - name: Send Email
+      - name: Send Email (Only if Vulnerabilities Exist)
+        if: env.VULN > 0
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🔍 Dependency Scan Report - ${{ github.repository }}"
+          subject: "⚠️ CVE Alert in ${{ github.repository }} (${{ env.VULN }} vulnerabilities)"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
           body: |
-            Hi Team,
-      
-            Here's the latest dependency security scan report for ${{ github.repository }}:
-      
-            📅 Scan Date: ${{ env.SCAN_DATE }}
+            Security Alert for ${{ github.repository }}:
+            
+            📅 Scan Time: ${{ env.SCAN_DATE }}
             📦 Total Dependencies: ${{ env.TOTAL }}
-            ⚠️ Vulnerable Dependencies: ${{ env.VULN }}
-      
-            🔍 Findings:
+            🔴 Vulnerable: ${{ env.VULN }} (${{ env.SEVERITY_BREAKDOWN }})
+            
+            🔥 Critical Findings:
             ${{ env.CRITICAL_CVES }}
-      
-            ${{ env.VULN == '0' && '✅ No action required—all dependencies are secure!' || '📌 Recommended Actions:
-            1. Update vulnerable dependencies immediately.
-            2. Review the full report (attached) for details.
-            3. Check for patches in the next 48 hours.' }}
-      
-            🔗 Full Report: See attached HTML file.
-      
+            
+            🚨 Immediate Actions:
+            1. Review attached report
+            2. Patch critical/high CVEs first
+            3. Check branch: ${{ github.ref }}
+            
             Regards,
-            Your Security Automation Bot
+            Security Bot
           attachments: target/dependency-check-report.html
+
+      - name: Log Clean Scan (Optional)
+        if: env.VULN == 0
+        run: echo "✅ No CVEs found - skipping email notification"
