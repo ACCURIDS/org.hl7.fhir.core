@@ -40,11 +40,13 @@ jobs:
         run: |
           TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
           VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
-          echo "TOTAL=$TOTAL, VULN=$VULN"
+          
+          # Extract top 3 critical CVEs (example)
+          echo "CRITICAL_CVES=$(jq -r '[.dependencies[] | select(.vulnerabilities != null) | . as $dep | .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | {dependency: $dep.fileName, version: $dep.version, cve: .name, severity: .severity}] | .[0:3] | map("\(.dependency)@\(.version) (\(.severity)) - CVE: \(.cve)") | join("\n")' target/dependency-check-report.json)" >> $GITHUB_ENV
+          
           echo "TOTAL=$TOTAL" >> $GITHUB_ENV
           echo "VULN=$VULN" >> $GITHUB_ENV
 
-      
       - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -52,8 +54,28 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Dependency Check Report - ${{ github.repository }}"
+          subject: "🚨 Dependency Check Report - ${{ github.repository }}"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
-          body: "Dependency Check Summary:\nTotal dependencies: ${{ env.TOTAL }}\nVulnerable dependencies: ${{ env.VULN }}\nFull report attached."
+          body: |
+            Hi Team,
+
+            Here's the latest dependency security scan report for **${{ github.repository }}**:
+
+            📅 **Scan Date**: $(date +'%Y-%m-%d %H:%M')
+            📦 **Total Dependencies**: ${{ env.TOTAL }}
+            ⚠️ **Vulnerable Dependencies**: ${{ env.VULN }}
+
+            🔥 **Critical Vulnerabilities**:
+            ${{ env.CRITICAL_CVES }}
+
+            📌 **Recommended Actions**:
+            1. Update vulnerable dependencies immediately.
+            2. Review the full report (attached) for details.
+            3. Check for patches in the next 48 hours.
+
+            🔗 **Full Report**: See attached HTML file.
+
+            Regards,
+            Your Security Automation Bot
           attachments: target/dependency-check-report.html
