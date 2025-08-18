@@ -34,18 +34,25 @@ jobs:
           
       
 
-      # Read report into an environment variable safely
       - name: Extract CVE Summary
         id: summary
         run: |
           TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
           VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
           
-          # Extract top 3 critical CVEs (example)
-          echo "CRITICAL_CVES=$(jq -r '[.dependencies[] | select(.vulnerabilities != null) | . as $dep | .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | {dependency: $dep.fileName, version: $dep.version, cve: .name, severity: .severity}] | .[0:3] | map("\(.dependency)@\(.version) (\(.severity)) - CVE: \(.cve)") | join("\n")' target/dependency-check-report.json)" >> $GITHUB_ENV
+          # Extract top 3 critical CVEs (or set a default message if none)
+          CRITICAL_CVES=$(jq -r '[.dependencies[] | select(.vulnerabilities != null) | . as $dep | .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | {dependency: $dep.fileName, version: $dep.version, cve: .name, severity: .severity}] | .[0:3] | map("• \(.dependency)@\(.version) (\(.severity)) - CVE: \(.cve)") | join("\n")' target/dependency-check-report.json)
           
+          if [ -z "$CRITICAL_CVES" ]; then
+            CRITICAL_CVES="✅ No critical vulnerabilities detected."
+          fi
+      
           echo "TOTAL=$TOTAL" >> $GITHUB_ENV
           echo "VULN=$VULN" >> $GITHUB_ENV
+          echo "CRITICAL_CVES<<EOF" >> $GITHUB_ENV
+          echo "$CRITICAL_CVES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
 
       - name: Send Email
         uses: dawidd6/action-send-mail@v3
@@ -54,28 +61,28 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🚨 Dependency Check Report - ${{ github.repository }}"
+          subject: "🔍 Dependency Scan Report - ${{ github.repository }}"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
           body: |
             Hi Team,
-
+      
             Here's the latest dependency security scan report for **${{ github.repository }}**:
-
-            📅 **Scan Date**: $(date +'%Y-%m-%d %H:%M')
+      
+            📅 **Scan Date**: ${{ env.SCAN_DATE }}
             📦 **Total Dependencies**: ${{ env.TOTAL }}
             ⚠️ **Vulnerable Dependencies**: ${{ env.VULN }}
-
-            🔥 **Critical Vulnerabilities**:
+      
+            🔍 **Findings**:
             ${{ env.CRITICAL_CVES }}
-
-            📌 **Recommended Actions**:
+      
+            ${{ env.VULN == '0' && '✅ No action required—all dependencies are secure!' || '📌 Recommended Actions:
             1. Update vulnerable dependencies immediately.
             2. Review the full report (attached) for details.
-            3. Check for patches in the next 48 hours.
-
+            3. Check for patches in the next 48 hours.' }}
+      
             🔗 **Full Report**: See attached HTML file.
-
+      
             Regards,
             Your Security Automation Bot
           attachments: target/dependency-check-report.html
