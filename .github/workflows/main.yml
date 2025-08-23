@@ -5,55 +5,143 @@ on:
     branches:
       - 5.1.0-patch1
   pull_request:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly on Monday 9AM UTC
 
 jobs:
   dependency-check:
     runs-on: ubuntu-latest
 
     steps:
-      # Always use latest checkout
+      # =============================================
+      # STEP 1: Repository Setup
+      # Checks out the codebase for scanning
+      # =============================================
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup latest stable JDK
+      # =============================================
+      # STEP 2: Java Environment Setup
+      # Configures JDK 17 for OWASP Dependency-Check
+      # =============================================
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # Run OWASP Dependency-Check with Maven
+      # =============================================
+      # STEP 3: Vulnerability Scanning
+      # Executes OWASP Dependency-Check against the codebase
+      # Generates reports in ALL formats (HTML/JSON/XML)
+      # =============================================
       - name: Run OWASP Dependency-Check
         run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -Dformat=ALL
-      # Upload HTML report as artifact
+
+      # =============================================
+      # STEP 4: Artifact Storage
+      # Preserves the HTML report as a workflow artifact
+      # Accessible via GitHub Actions UI
+      # =============================================
       - name: Upload Dependency Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
           path: target/dependency-check-report.html
-          
-      
 
-      # Read report into an environment variable safely
+      # =============================================
+      # STEP 5: Report Analysis
+      # Extracts critical vulnerability metrics:
+      # - Total dependencies count
+      # - Vulnerable dependencies count
+      # - Top 3 critical/high CVEs (if any)
+      # - Severity distribution breakdown
+      # =============================================
       - name: Extract CVE Summary
         id: summary
         run: |
           TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
           VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
-          echo "TOTAL=$TOTAL, VULN=$VULN"
+          
+          # Export variables
           echo "TOTAL=$TOTAL" >> $GITHUB_ENV
           echo "VULN=$VULN" >> $GITHUB_ENV
+          
+          # Only proceed with CVE extraction if vulnerabilities exist
+          if [ "$VULN" -gt 0 ]; then
+            CRITICAL_CVES=$(jq -r '
+              [.dependencies[] | select(.vulnerabilities != null) | . as $dep | 
+              .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | 
+              {
+                dependency: $dep.fileName, 
+                version: $dep.version, 
+                cve: .name, 
+                severity: .severity,
+                description: .description
+              }] | 
+              .[0:3] | 
+              map("• \(.dependency)@\(.version) (\(.severity))\n  CVE: \(.cve)\n  Description: \(.description | sub("\\n"; " ") | .[0:100])...") | 
+              join("\n\n")
+            ' target/dependency-check-report.json)
+            
+            SEVERITY_BREAKDOWN=$(jq -r '
+              [.dependencies[].vulnerabilities[]?.severity] | 
+              group_by(.) | 
+              map("\(.[0]): \(length)") | 
+              join(", ")
+            ' target/dependency-check-report.json)
+            
+            echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M %Z')" >> $GITHUB_ENV
+            echo "SEVERITY_BREAKDOWN=$SEVERITY_BREAKDOWN" >> $GITHUB_ENV
+            echo "CRITICAL_CVES<<EOF" >> $GITHUB_ENV
+            echo "$CRITICAL_CVES" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
 
-      
-      - name: Send Email
+      # =============================================
+      # STEP 6: Alert Notification
+      # Sends email ONLY when vulnerabilities are detected
+      # Includes:
+      # - Vulnerability summary
+      # - Critical findings
+      # - Recommended actions
+      # - Attached HTML report
+      # =============================================
+      - name: Send Email (Only if Vulnerabilities Exist)
+        if: env.VULN > 0
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Dependency Check Report - ${{ github.repository }}"
+          subject: "⚠️ CVE Alert in ${{ github.repository }} (${{ env.VULN }} vulnerabilities)"
           to: yacinbnsalh@gmail.com
           from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
-          body: "Dependency Check Summary:\nTotal dependencies: ${{ env.TOTAL }}\nVulnerable dependencies: ${{ env.VULN }}\nFull report attached."
+          body: |
+            Security Alert for ${{ github.repository }}:
+            
+            📅 Scan Time: ${{ env.SCAN_DATE }}
+            📦 Total Dependencies: ${{ env.TOTAL }}
+            🔴 Vulnerable: ${{ env.VULN }} (${{ env.SEVERITY_BREAKDOWN }})
+            
+            🔥 Critical Findings:
+            ${{ env.CRITICAL_CVES }}
+            
+            🚨 Immediate Actions:
+            1. Review attached report
+            2. Patch critical/high CVEs first
+            3. Check branch: ${{ github.ref }}
+            
+            Regards,
+            Security Bot
           attachments: target/dependency-check-report.html
+
+      # =============================================
+      # STEP 7: Clean Scan Logging
+      # Provides visible confirmation in workflow logs
+      # when no vulnerabilities are detected
+      # =============================================
+      - name: Log Clean Scan (Optional)
+        if: env.VULN == 0
+        run: echo "✅ No CVEs found - skipping email notification"
