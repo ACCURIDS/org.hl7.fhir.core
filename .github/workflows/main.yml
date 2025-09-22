@@ -1,147 +1,79 @@
-name: Dependency Check
+name: FHIR CORE Dependency Scan
 
 on:
-  push:
-    branches:
-      - 5.1.0-patch1
-  pull_request:
-  schedule:
-    - cron: '0 9 * * 1'  # Weekly on Monday 9AM UTC
+   schedule:
+      - cron: '0 0 * * 1'
+   push:
+      branches: [5.1.0-patch1]
+   pull_request:
+      branches: [5.1.0-patch1]
+   workflow_dispatch:
 
 jobs:
-  dependency-check:
-    runs-on: ubuntu-latest
+   dependency-scan:
+      runs-on: ubuntu-latest
+      strategy:
+         matrix:
+            module:
+               - org.hl7.fhir.r5
+               - org.hl7.fhir.convertors
+               - org.hl7.fhir.validation
+               - org.hl7.fhir.validation.cli
+      name: Scan ${{ matrix.module }}
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v4
 
-    steps:
-      # =============================================
-      # STEP 1: Repository Setup
-      # Checks out the codebase for scanning
-      # =============================================
-      - name: Checkout code
-        uses: actions/checkout@v4
+         - name: Set up Java
+           uses: actions/setup-java@v4
+           with:
+              distribution: 'temurin'
+              java-version: '17'
+              cache: 'maven'
 
-      # =============================================
-      # STEP 2: Java Environment Setup
-      # Configures JDK 17 for OWASP Dependency-Check
-      # =============================================
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+         - name: Set scan date
+           run: |
+              echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+              echo "MODULE=${{ matrix.module }}" >> $GITHUB_ENV
+         - name: Run Dependency-Check
+           id: run_scan
+           run: |
+              LOG_DIR="${{ matrix.module }}/target"
+              mkdir -p "$LOG_DIR"
+              mvn -B -pl "${{ matrix.module }}" org.owasp:dependency-check-maven:check \
+                  -Dformats=JSON \
+                  -DnvdDatafeedUrl=https://dependency-check.github.io/DependencyCheck_Builder/nvd_cache/nvdcve-{0}.json.gz \
+                  -DoutputDirectory="$LOG_DIR" \
+                  -DfailBuildOnAnyVulnerability=false \
+                  -DossIndexUsername=${{ secrets.OSSINDEX_USER }} \
+                  -DossIndexPassword=${{ secrets.OSSINDEX_TOKEN }}
+              REPORT_FILE="$LOG_DIR/dependency-check-report.json"
+              if [ -f "$REPORT_FILE" ]; then
+                VULN_COUNT=$(jq '[.dependencies[].vulnerabilities[]?] | length' "$REPORT_FILE")
+                CVES=$(jq -r '[.dependencies[].vulnerabilities[]?.name] | join(", ")' "$REPORT_FILE")
+              else
+                VULN_COUNT=0
+                CVES=""
+              fi
+              echo "VULN_COUNT=$VULN_COUNT" >> $GITHUB_ENV
+              echo "CVES=$CVES" >> $GITHUB_ENV
+         - name: Create GitHub Issue if vulnerabilities found
+           if: env.VULN_COUNT != '0'
+           uses: JasonEtco/create-an-issue@v2
+           with:
+              filename: .github/ISSUE_TEMPLATE/scan-template.md
+              update_existing: true
+              search_existing: true
+              assignees: yassinbnsalah, aliariff, oleksandrsnizhko
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              SCAN_DATE: ${{ env.SCAN_DATE }}
+              VULN_COUNT: ${{ env.VULN_COUNT }}
+              CVES: ${{ env.CVES }}
+              MODULE: ${{ env.MODULE }}
 
-      # =============================================
-      # STEP 3: Vulnerability Scanning
-      # Executes OWASP Dependency-Check against the codebase
-      # Generates reports in ALL formats (HTML/JSON/XML)
-      # =============================================
-      - name: Run OWASP Dependency-Check
-        run: mvn org.owasp:dependency-check-maven:check -DnvdApiKey=${{ secrets.NVD_API_KEY }} -Dformat=ALL
-
-      # =============================================
-      # STEP 4: Artifact Storage
-      # Preserves the HTML report as a workflow artifact
-      # Accessible via GitHub Actions UI
-      # =============================================
-      - name: Upload Dependency Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: target/dependency-check-report.html
-
-      # =============================================
-      # STEP 5: Report Analysis
-      # Extracts critical vulnerability metrics:
-      # - Total dependencies count
-      # - Vulnerable dependencies count
-      # - Top 3 critical/high CVEs (if any)
-      # - Severity distribution breakdown
-      # =============================================
-      - name: Extract CVE Summary
-        id: summary
-        run: |
-          TOTAL=$(jq '.dependencies | length' target/dependency-check-report.json)
-          VULN=$(jq '[.dependencies[] | select(.vulnerabilities != null)] | length' target/dependency-check-report.json)
-          
-          # Export variables
-          echo "TOTAL=$TOTAL" >> $GITHUB_ENV
-          echo "VULN=$VULN" >> $GITHUB_ENV
-          
-          # Only proceed with CVE extraction if vulnerabilities exist
-          if [ "$VULN" -gt 0 ]; then
-            CRITICAL_CVES=$(jq -r '
-              [.dependencies[] | select(.vulnerabilities != null) | . as $dep | 
-              .vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL") | 
-              {
-                dependency: $dep.fileName, 
-                version: $dep.version, 
-                cve: .name, 
-                severity: .severity,
-                description: .description
-              }] | 
-              .[0:3] | 
-              map("• \(.dependency)@\(.version) (\(.severity))\n  CVE: \(.cve)\n  Description: \(.description | sub("\\n"; " ") | .[0:100])...") | 
-              join("\n\n")
-            ' target/dependency-check-report.json)
-            
-            SEVERITY_BREAKDOWN=$(jq -r '
-              [.dependencies[].vulnerabilities[]?.severity] | 
-              group_by(.) | 
-              map("\(.[0]): \(length)") | 
-              join(", ")
-            ' target/dependency-check-report.json)
-            
-            echo "SCAN_DATE=$(date +'%Y-%m-%d %H:%M %Z')" >> $GITHUB_ENV
-            echo "SEVERITY_BREAKDOWN=$SEVERITY_BREAKDOWN" >> $GITHUB_ENV
-            echo "CRITICAL_CVES<<EOF" >> $GITHUB_ENV
-            echo "$CRITICAL_CVES" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
-          fi
-
-      # =============================================
-      # STEP 6: Alert Notification
-      # Sends email ONLY when vulnerabilities are detected
-      # Includes:
-      # - Vulnerability summary
-      # - Critical findings
-      # - Recommended actions
-      # - Attached HTML report
-      # =============================================
-      - name: Send Email (Only if Vulnerabilities Exist)
-        if: env.VULN > 0
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "⚠️ CVE Alert in ${{ github.repository }} (${{ env.VULN }} vulnerabilities)"
-          to: yacinbnsalh@gmail.com
-          from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
-          body: |
-            Security Alert for ${{ github.repository }}:
-            
-            📅 Scan Time: ${{ env.SCAN_DATE }}
-            📦 Total Dependencies: ${{ env.TOTAL }}
-            🔴 Vulnerable: ${{ env.VULN }} (${{ env.SEVERITY_BREAKDOWN }})
-            
-            🔥 Critical Findings:
-            ${{ env.CRITICAL_CVES }}
-            
-            🚨 Immediate Actions:
-            1. Review attached report
-            2. Patch critical/high CVEs first
-            3. Check branch: ${{ github.ref }}
-            
-            Regards,
-            Security Bot
-          attachments: target/dependency-check-report.html
-
-      # =============================================
-      # STEP 7: Clean Scan Logging
-      # Provides visible confirmation in workflow logs
-      # when no vulnerabilities are detected
-      # =============================================
-      - name: Log Clean Scan (Optional)
-        if: env.VULN == 0
-        run: echo "✅ No CVEs found - skipping email notification"
+         - name: Upload scan report
+           uses: actions/upload-artifact@v4
+           with:
+              name: dependency-report-${{ matrix.module }}
+              path: ${{ matrix.module }}/target/
